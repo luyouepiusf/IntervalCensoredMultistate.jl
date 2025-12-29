@@ -1,7 +1,6 @@
 module IntervalCensoredMultistate
 
 import LinearAlgebra
-import DataFrames
 
 export greet_your_package_name
 include("infer_transitions.jl")
