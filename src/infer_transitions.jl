@@ -1,4 +1,4 @@
-function infer_transitions(possible_transition)
+function infer_transitions(possible_transition::AbstractArray{Bool,2})
   nstates=size(possible_transition,1)
   
   possible_transition_tuple = Vector{Tuple{Int64,Int64}}(undef,0)

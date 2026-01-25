@@ -1,8 +1,10 @@
 function simplify(
-  ssij,TTij,nobss,
-  possible_transition;
-  less_time=true,
-  non_info=false)
+  ssij::Matrix{Int64},
+  TTij::AbstractArray{Bool,3},
+  nobss::Vector{Int64},
+  possible_transition::AbstractArray{Bool,2};
+  less_time::Bool=true,
+  non_info::Bool=false)
 
   (
     possible_transition_tuple,

@@ -1,12 +1,116 @@
+"""
+Core function for estimating regression coefficients in a proportional hazards model
+with interval-censored multistate data.
+
+# Problem setup
+
+We consider **N individuals** (N = size(TTij, 1)) who all start in state 1 at time 0 and are
+followed for possible state transitions over the time interval **[0, T]**, where
+T = ntimepoints.
+
+The *i*-th individual is observed at possibly unevenly spaced times
+
+    TTij[i, 1], …, TTij[i, nobss[i]]
+
+There are **ns possible states** (ns = size(possible_transition, 1)).
+The matrix `possible_transition` encodes the allowable transitions between states:
+
+    possible_transition[s1, s2] == true
+
+if and only if a transition from state `s1` to state `s2` is allowed.
+
+At each observation time `TTij[i, j]`, the set of states that the *i*-th individual may
+occupy is given by
+
+    ssij[i, j, :]
+
+In particular,
+
+    ssij[i, j, s] == true
+
+if and only if the *i*-th individual may occupy state `s` at time `TTij[i, j]`.
+
+There are **nz predictor variables** (nz = size(zzi, 2)) for modeling the risks of state
+transitions. One can specify which predictors are used for each possible transition:
+
+    F_zidx[s1, s2] ⊆ {1, …, nz}
+
+indicates the indices of predictors used to model the transition from state `s1`
+to state `s2`.
+
+# Arguments
+
+- `TTij::Matrix{Int}`  
+  Integer matrix of observation times for state occupations.
+
+  `TTij[i, j]` is the observation time for the *j*-th observation of the *i*-th individual.  
+  Only `TTij[i, 1] … TTij[i, nobss[i]]` are used; values outside this range are ignored.
+
+  Dimensions:
+  - size(TTij, 1) = N  
+  - size(TTij, 2) ≥ max(nobss)
+
+- `ssij::Array{Bool,3}`  
+  Logical 3-dimensional array indicating possible state occupation.
+
+  `ssij[i, j, s] == true` if the *i*-th individual may occupy state `s`
+  at the *j*-th observation time.  
+  Only `ssij[i, 1, :] … ssij[i, nobss[i], :]` are used; values outside this range are ignored.
+
+  Dimensions:
+  - size(ssij, 1) = N  
+  - size(ssij, 2) ≥ max(nobss)  
+  - size(ssij, 3) = ns
+
+- `nobss::Vector{Int}`  
+  Number of observation times for each individual.
+
+  `nobss[i]` is the number of observation times for the *i*-th individual.  
+  length(nobss) = N.
+
+- `zzi::Matrix{Float64}`  
+  Matrix of covariates.
+
+  `zzi[i, k]` is the *k*-th covariate for the *i*-th individual.
+
+  Dimensions:
+  - size(zzi, 1) = N  
+  - size(zzi, 2) = nz
+
+- `F_zidx::Matrix{Vector{Int}}`  
+  Matrix of integer vectors specifying covariate indices.
+
+  `F_zidx[s1, s2]` is the vector of covariate indices used to model the transition
+  from state `s1` to state `s2`.
+
+  Dimensions:
+  - size(F_zidx, 1) = ns  
+  - size(F_zidx, 2) = ns  
+  - Each `F_zidx[s1, s2] ⊆ {1, …, nz}`
+
+- `possible_transition::Matrix{Bool}`  
+  Logical matrix indicating allowable state transitions.
+
+  `possible_transition[s1, s2] == true` if and only if a transition from state `s1`
+  to state `s2` is allowed.
+
+  Dimensions:
+  - size(possible_transition, 1) = ns  
+  - size(possible_transition, 2) = ns
+
+- `ntimepoints::Int`  
+  Total number of time points `T` defining the observation window `[0, T]`. `ntimepoints` should be greater than or equal to all effective entries of `TTij`.
+
+"""
 function reg_est_bone(
-  TTij,
-  ssij,
-  nobss,
-  zzi,
-  F_zidx,
-  possible_transition,
-  ntimepoints;
-  niter=1000,tol=1e-4,factor=0.8)
+  TTij::Matrix{Int64},
+  ssij::AbstractArray{Bool,3},
+  nobss::Vector{Int64},
+  zzi::Matrix{Float64},
+  F_zidx::Matrix{Vector{Int64}},
+  possible_transition::AbstractArray{Bool,2},
+  ntimepoints::Int65;
+  niter::Integer=1000,tol::Float64=1e-4,factor::Float64=0.8)
   
   nind=size(TTij,1)
   ndimz=size(zzi,2)
