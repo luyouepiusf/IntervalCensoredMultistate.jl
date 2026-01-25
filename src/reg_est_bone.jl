@@ -5,8 +5,7 @@ with interval-censored multistate data.
 # Problem setup
 
 We consider **N individuals** (N = size(TTij, 1)) who all start in state 1 at time 0 and are
-followed for possible state transitions over the time interval **[0, T]**, where
-T = ntimepoints.
+followed for possible state transitions over the time interval **[0, T]**, (T = ntimepoints).
 
 The *i*-th individual is observed at possibly unevenly spaced times
 
@@ -19,12 +18,13 @@ The matrix `possible_transition` encodes the allowable transitions between state
 
 if and only if a transition from state `s1` to state `s2` is allowed.
 
-At each observation time `TTij[i, j]`, the set of states that the *i*-th individual may
-occupy is given by
+At each observation time `TTij[i, j]`, the individual's state may be either uniquely determined or only partially observed. 
+If the state is uniquely known to be s, then 
 
-    ssij[i, j, :]
+ssij[i, j, s]==true 
 
-In particular,
+and all other components of ssij[i, j, :] are false. If the individual may occupy multiple states (e.g., s1 or s2), then 
+ssij[i, j, s1] and ssij[i, j, s2] are true, indicating a set of possible states. Namely,
 
     ssij[i, j, s] == true
 
@@ -102,9 +102,36 @@ to state `s2`.
   Total number of time points `T` defining the observation window `[0, T]`. `ntimepoints` should be greater than or equal to all effective entries of `TTij`.
 
 # Keywords
-- `niter::Integer`: an integer for number of maximum iterations.
-- `tol::Float64`: a positive numeric value for convergence criterion.
-- `factor::Float64`: a numeric value in (0, 1] for Newton-Raphson step size.
+- `niter::Integer`: An integer specifying the maximum number of iterations.
+- `tol::Float64`: A positive numeric value specifying the convergence tolerance.
+- `factor::Float64`: A numeric value in (0, 1] for Newton-Raphson step size.
+
+# Returns
+Object containing model estimates and optimization information.
+Type: NamedTuple (or replace with your actual type)
+
+Contents:
+- `F_betaz_est`: Matrix{Vector{Float64}}
+  Regression coefficients for each transition.
+  F_betaz_est[s1, s2][k] corresponds to the coefficients for the transition
+  from state s1 to state s2 for the index specifed in F_zidx[s1, s2][k].
+
+- `F_II_betaz`: Matrix{Vector{Float64}}
+  Information matrix for regression coefficients.
+  F_II_betaz[s1, s2] corresponds to the information matrix the vector of regression 
+  coefficients F_betaz_est[s1, s2].
+
+- `F_hazard0`: Matrix{Vector{Float64}}
+  Baseline transition rate (the transition rate when all predictors are 0).
+  F_hazard0[s1, s2][t] corresponds to the baseline transition rate from s1 to s2 at time t.
+
+- `F_Eg`: Array{Float64,3}
+  Inferred state occupation probabilities at each time point.
+  F_Eg[i,s,t] corresponds to the probability of occupying state s right before time t (or right after time t-1) for the i-th individual.
+
+- `F_eps`: Matrix{Float64}  
+  Change in estimates of regression coefficients at convergence.
+  F_eps[s1, s2] corresponds to the sum of absolute changes in F_betaz_est[s1, s2].
 
 """
 function reg_est_bone(

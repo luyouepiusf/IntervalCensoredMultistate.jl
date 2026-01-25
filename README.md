@@ -9,9 +9,11 @@ IntervalCensoredMultistate is a Julia package for fitting proportional hazards m
 * **Interval Censoring Support:** Handles data where state occupancy is only known at discrete, potentially unevenly spaced observation times.
 * **State Occupancy Uncertainty:** Supports cases where the exact state at a given observation time is unknown. Users can specify a set of multiple "possible" states for each observation, allowing for more flexible interval censoring.
 
-## Problem setting and introduction
+## Introduction of the problem
 
-We consider **N individuals** who all start in state 1 at time 0 and are followed over a fixed time window \([0, T]\), where \(T = ntimepoints\).
+### State transition data
+
+We consider **N individuals** who all start in state 1 at time 0 and are followed up to time T \(T = ntimepoints\).
 
 Each individual is observed at a sequence of possibly unevenly spaced time points. For the *i*-th individual, the observation times are:
 
@@ -25,7 +27,7 @@ if and only if a transition from state s1 to state s2 is allowed.
 
 At each observation time TTij[i, j], the individual's state may be either uniquely determined or only partially observed. If the state is uniquely known to be s, then ssij[i, j, s] is true and all other components of ssij[i, j, :] are false. If the individual may occupy multiple states (e.g., s1 or s2), then ssij[i, j, s1] and ssij[i, j, s2] are true, indicating a set of possible states.
 
-## Covariates and transition-specific effects
+### Covariates and transition-specific effects
 
 There are **nz predictor variables** (covariates) used to model the risks of state transitions. These covariates are stored in a matrix zzi, where:
 
