@@ -101,6 +101,11 @@ to state `s2`.
 - `ntimepoints::Int`  
   Total number of time points `T` defining the observation window `[0, T]`. `ntimepoints` should be greater than or equal to all effective entries of `TTij`.
 
+# Keywords
+- `niter::Integer`: an integer for number of maximum iterations.
+- `tol::Float64`: a positive numeric value for convergence criterion.
+- `factor::Float64`: a numeric value in (0, 1] for Newton-Raphson step size.
+
 """
 function reg_est_bone(
   TTij::Matrix{Int64},
@@ -109,7 +114,7 @@ function reg_est_bone(
   zzi::Matrix{Float64},
   F_zidx::Matrix{Vector{Int64}},
   possible_transition::AbstractArray{Bool,2},
-  ntimepoints::Int65;
+  ntimepoints::Int64;
   niter::Integer=1000,tol::Float64=1e-4,factor::Float64=0.8)
   
   nind=size(TTij,1)
