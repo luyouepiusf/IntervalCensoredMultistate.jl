@@ -86,7 +86,7 @@ F_zidx[2, 3] = [1]    # 2->3 influenced only by Age
 3. Estimate Coefficients
 Call the core estimation function with your prepared matrices.
 
-```
+```julia
 results = estimate_coefficients(
     TTij,                # Observation times matrix (N x MaxObs)
     ssij,                # State possibility indicator (N x MaxObs x ns)
