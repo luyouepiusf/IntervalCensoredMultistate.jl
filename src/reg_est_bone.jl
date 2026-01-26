@@ -9,7 +9,7 @@ followed for possible state transitions over the time interval **[0, T]**, (T = 
 
 The *i*-th individual is observed at possibly unevenly spaced times
 
-    TTij[i, 1], …, TTij[i, nobss[i]]
+    TTij[i, 1], ..., TTij[i, nobss[i]]
 
 There are **ns possible states** (ns = size(possible_transition, 1)).
 The matrix `possible_transition` encodes the allowable transitions between states:
@@ -33,7 +33,7 @@ if and only if the *i*-th individual may occupy state `s` at time `TTij[i, j]`.
 There are **nz predictor variables** (nz = size(zzi, 2)) for modeling the risks of state
 transitions. One can specify which predictors are used for each possible transition:
 
-    F_zidx[s1, s2] ⊆ {1, …, nz}
+    F_zidx[s1, s2] ⊆ {1, ..., nz}
 
 indicates the indices of predictors used to model the transition from state `s1`
 to state `s2`.

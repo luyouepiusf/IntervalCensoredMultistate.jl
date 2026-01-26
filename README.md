@@ -13,31 +13,31 @@ IntervalCensoredMultistate is a Julia package for fitting proportional hazards m
 
 ### State transition data
 
-We consider **N individuals** who all start in state 1 at time 0 and are followed up to time T \(T = ntimepoints\).
+We consider `N` individuals who all start in state 1 at time 0 and are followed up to time `T` \(T = `ntimepoints`\).
 
-Each individual is observed at a sequence of possibly unevenly spaced time points. For the *i*-th individual, the observation times are:
+Each individual is observed at a sequence of possibly unevenly spaced time points. For the `i`-th individual, the observation times are:
 
-TTij[i, 1], ..., TTij[i, nobss[i]]
+`TTij[i, 1]`, ..., `TTij[i, nobss[i]]`
 
 There are **ns possible states** in total. The allowable transitions between states are specified by a user-defined transition matrix:
 
-possible_transition[s1, s2] = true
+`possible_transition[s1, s2] = true`
 
 if and only if a transition from state s1 to state s2 is allowed.
 
-At each observation time TTij[i, j], the individual's state may be either uniquely determined or only partially observed. If the state is uniquely known to be s, then ssij[i, j, s] is true and all other components of ssij[i, j, :] are false. If the individual may occupy multiple states (e.g., s1 or s2), then ssij[i, j, s1] and ssij[i, j, s2] are true, indicating a set of possible states.
+At each observation time `TTij[i, j]`, the individual's state may be either uniquely determined or only partially observed. If the state is uniquely known to be `s`, then `ssij[i, j, s]` is true and all other components of `ssij[i, j, :]` are false. If the individual may occupy multiple states (e.g., `s1` or `s2`), then `ssij[i, j, s1]` and `ssij[i, j, s2]` are true, indicating a set of possible states.
 
 ### Covariates and transition-specific effects
 
-There are **nz predictor variables** (covariates) used to model the risks of state transitions. These covariates are stored in a matrix zzi, where:
+There are `nz` predictor variables (covariates) from the `N` individuals used to model the risks of state transitions. These covariates are stored in a matrix `zzi`, where:
 
-zzi[i, k] is the k-th covariate for the i-th individual.
+`zzi[i, k]` is the `k`-th covariate for the `i`-th individual.
 
 Importantly, the package allows **different sets of covariates for different transitions**. This is specified through a matrix of index vectors:
 
-F_zidx[s1, s2] ⊆ {1, …, nz}
+`F_zidx[s1, s2]` ⊆ {1, ..., `nz`}
 
-which indicates which covariates are used to model the transition from state s1 to state s2.
+which indicates which covariates are used to model the transition from state `s1` to state `s2`.
 
 This structure allows highly flexible transition-specific regression models.
 
@@ -88,9 +88,9 @@ Call the core estimation function with your prepared matrices.
 
 results = estimate_coefficients(
     TTij,                # Observation times matrix (N x MaxObs)
-    ssij,                # State possibility indicator (N x MaxObs x NS)
+    ssij,                # State possibility indicator (N x MaxObs x ns)
     nobss,               # Vector of observation counts per individual
-    zzi,                 # Covariate matrix (N x NZ)
+    zzi,                 # Covariate matrix (N x nz)
     F_zidx,              # Mapping of zzi to transitions
     possible_transition, # The transition logic matrix
     ntimepoints          # Total time horizon (T)
