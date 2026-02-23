@@ -87,7 +87,7 @@ F_zidx[2, 3] = [1]    # 2->3 influenced only by Age
 Call the core estimation function with your prepared matrices.
 
 ```julia
-results = estimate_coefficients(
+results = reg_est_bone(
     TTij,                # Observation times matrix (N x MaxObs)
     ssij,                # State possibility indicator (N x MaxObs x ns)
     nobss,               # Vector of observation counts per individual
@@ -97,3 +97,8 @@ results = estimate_coefficients(
     ntimepoints          # Total time horizon (T)
 )
 ```
+
+## Reference
+
+You, L., Liu, X., & Krischer, J. (2024). A discrete approximation method for modeling interval‐censored multistate data. Statistics in medicine, 43(12), 2452-2471.
+PMID: 38599784, PMCID: PMC11109708, DOI: 10.1002/sim.10079
