@@ -43,7 +43,7 @@ This structure allows highly flexible transition-specific regression models.
 
 ## Design philosophy
 
-This package is intentionally minimal. The package currently exposes only one main function. It does not aim to provide a full modeling ecosystem with plotting, diagnostics, or simulation utilities. Instead, it provides a single, well-defined computational core that can be called from custom workflows, simulation studies, or higher-level modeling frameworks. Users are expected to handle data preprocessing, result interpretation, and downstream analysis externally.
+This package provides high-level wrappers for common interval-censored event-history models and a lower-level computational core for custom multistate workflows. It does not aim to provide a full modeling ecosystem with plotting, diagnostics, or simulation utilities. Instead, it focuses on estimating transition-specific proportional hazards models that can be called from custom workflows, simulation studies, or higher-level modeling frameworks.
 
 ## Applications
 
@@ -56,10 +56,57 @@ using Pkg
 Pkg.add("IntervalCensoredMultistate") # Replace with actual name or local path
 ```
 
-## Usage Guide
+## Getting Started
+
+Load the package:
+
+```julia
+using IntervalCensoredMultistate
+```
+
+### Single-event interval-censored data
+
+For standard interval-censored time-to-event data, use `fit_single_event`.
+Each event time is known to lie in `(left[i], right[i]]`; observations with
+`event[i] == false` are treated as right-censored at `left[i]`.
+
+```julia
+left = Float64[0.0, 0.2, 0.5, 0.4]
+right = Float64[0.3, 0.6, 0.8, 1.0]
+event = Bool[true, true, true, false]
+zzi = Float64[
+    0.0 1.0;
+    1.0 0.0;
+    0.5 1.0;
+    1.0 1.0
+]
+timepoints = collect(Float64, 0.1:0.1:1.0)
+
+summary = fit_single_event(left, right, event, zzi, timepoints; niter=100)
+```
+
+`summary` is a vector of named tuples with the covariate index (`z_idx`),
+coefficient estimate (`beta`), and standard error (`se`).
+
+### Competing risks
+
+Competing risks are represented as transitions from the initial state to one
+absorbing state per cause. A cause value of `0` indicates right censoring.
+
+```julia
+cause = Int64[1, 2, 1, 0]
+F_zidx = Vector{Int64}[[1, 2], [1]]
+
+summary = fit_competing_risks(
+    left, right, cause, zzi, F_zidx, timepoints;
+    niter=100
+)
+```
+
+## Multistate Usage Guide
 
 1. Define the Transition Logic
-Use a BitMatrix to define which transitions are allowed between states.
+Use a `Matrix{Bool}` to define which transitions are allowed between states.
 
 ```julia
 # Example: 3-state model (1: Healthy, 2: Sick, 3: Dead)
@@ -76,11 +123,11 @@ F_zidx allows you to specify which columns of your covariate matrix (zzi) influe
 
 ```julia
 # Assume zzi has 2 columns: [Age, Treatment]
-F_zidx = Matrix{Vector{Int}}(undef, 3, 3)
+F_zidx = [Int64[] for _ in 1:3, _ in 1:3]
 
-F_zidx[1, 2] = [1, 2] # 1->2 influenced by Age and Treatment
-F_zidx[1, 3] = [1]    # 1->3 influenced only by Age
-F_zidx[2, 3] = [1]    # 2->3 influenced only by Age
+F_zidx[1, 2] = Int64[1, 2] # 1->2 influenced by Age and Treatment
+F_zidx[1, 3] = Int64[1]    # 1->3 influenced only by Age
+F_zidx[2, 3] = Int64[1]    # 2->3 influenced only by Age
 ```
 
 3. Estimate Coefficients
@@ -96,6 +143,16 @@ results = reg_est_bone(
     possible_transition, # The transition logic matrix
     ntimepoints          # Total time horizon (T)
 )
+```
+
+## Documentation
+
+The package includes Documenter.jl documentation in `docs/`. To build it
+locally from the package root:
+
+```bash
+julia --project=docs -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+julia --project=docs docs/make.jl
 ```
 
 ## Reference

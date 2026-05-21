@@ -4,8 +4,8 @@ with interval-censored multistate data.
 
 # Problem setup
 
-We consider **N individuals** (N = size(TTij, 1)) who all start in state 1 at time 0 and are
-followed for possible state transitions over the time interval **[0, T]**, (T = ntimepoints).
+We consider N individuals (N = size(TTij, 1)) who all start in state 1 at time 0 and are
+followed for possible state transitions over the time interval [0, T], (T = ntimepoints).
 
 The *i*-th individual is observed at possibly unevenly spaced times
 
@@ -28,9 +28,9 @@ ssij[i, j, s1] and ssij[i, j, s2] are true, indicating a set of possible states.
 
     ssij[i, j, s] == true
 
-if and only if the *i*-th individual may occupy state `s` at time `TTij[i, j]`.
+if and only if the i-th individual may occupy state `s` at time `TTij[i, j]`.
 
-There are **nz predictor variables** (nz = size(zzi, 2)) for modeling the risks of state
+There are nz predictor variables (nz = size(zzi, 2)) from the N individuals for modeling the risks of state
 transitions. One can specify which predictors are used for each possible transition:
 
     F_zidx[s1, s2] ⊆ {1, ..., nz}
@@ -144,6 +144,8 @@ function reg_est_bone(
   ntimepoints::Int64;
   niter::Integer=1000,tol::Float64=1e-4,factor::Float64=0.8)
   
+  println("Version 2026/05/21/3PM")
+
   nind=size(TTij,1)
   ndimz=size(zzi,2)
   nstates=size(possible_transition,1)
@@ -253,9 +255,9 @@ function reg_est_bone(
 
   start_time=time()
   for iter in 1:niter
-    println(iter," - ")
+    # println(iter," - ")
     current_time=time()
-    println(current_time-start_time)
+    # println(current_time-start_time)
     for ii in 1:nind
       prob=zeros(nstates,nstates,ntimepoints)
       expr=zeros(nstates,nstates)
